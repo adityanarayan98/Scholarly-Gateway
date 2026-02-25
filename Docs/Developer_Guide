@@ -1,0 +1,254 @@
+# Scholarly Gateway - Developer Guide
+
+## Overview
+This is a DSpace-based CRIS (Current Research Information System) portal that provides publication search and filtering capabilities.
+
+---
+
+## File Structure
+
+| File | Purpose |
+|------|---------|
+| `helpers.php` | Shared helper functions (21 functions) - central library |
+| `publications_api.php` | JSON API endpoint for AJAX requests |
+| `publications.php` | Full HTML page with search UI |
+| `export.php` | Export functionality (CSV, JSON, TXT) |
+
+---
+
+## Data Flow
+
+```
+User Request
+    ↓
+publications.php (or publications_api.php)
+    ↓ includes ↓
+helpers.php (shared functions)
+    ↓ calls ↓
+Solr Database
+    ↓ returns JSON ↓
+PHP transforms data
+    ↓
+HTML/JSON Output
+```
+
+---
+
+## Section Organization (helpers.php)
+
+### SECTION 1: INITIALIZATION & CONFIG
+- `initSettings($is_api)` - Set headers, memory limits
+
+### SECTION 2: HTTP REQUEST HANDLERS
+- `handleFacetOnlyRequest()` - Handle modal facet requests
+
+### SECTION 3: DATA LOADING
+- `loadDepartmentMapping()` - Load departments from Solr
+- `getAllDynamicFacets()` - Get dynamic facets
+- `getAuthorsFromResearchers()` - Load authors from Researchers community
+- `getAuthorIdToNameMapping()` - Author ID to name mapping
+- `getAuthorFacetsFromDocs()` - Author facets with counts
+- `getDepartmentFromCollection()` - Lookup department from collection
+
+### SECTION 4: CORE SOLR COMMUNICATION
+- `querySolr($params)` - Execute Solr query
+
+### SECTION 5: DATA TRANSFORMATION
+- `parseAuthors()` - Parse author strings
+- `parseMultiValue()` - Parse multi-value fields
+- `extractAuthorName()` - Extract name from raw value
+- `processPublicationResults()` - Transform Solr docs to display format
+- `processPublicationFacets()` - Process facet data
+- `getTypePriority()` - Sort type: Article > Conference > Other
+- `limit_facets()` - Limit facet array to top N
+
+### SECTION 6: FILTER PROCESSING
+- `buildFilterQuery()` - Build Solr filter query string
+- `processPublicationFilters()` - Process GET parameters
+
+### SECTION 7: QUERY BUILDING
+- `buildPublicationQuery()` - Build Solr query parameters
+
+### SECTION 8: UI RENDERING
+- `build_page_url()` - Build pagination URLs
+- `render_facet_items()` - Render facet checkboxes HTML
+
+---
+
+## Solr Field Mappings
+
+### Document Fields
+| Solr Field | Description |
+|------------|-------------|
+| `dc.title` | Publication title |
+| `dc.contributor.author` | Author names |
+| `dateIssued.year` | Publication year |
+| `dc.type` | Publication type |
+| `dc.source` | Journal/Conference name |
+| `dc.identifier.doi` | DOI |
+| `dc.language.iso` | Language |
+| `dc.coverage.spatial` | Country |
+| `location.coll` | Collection ID |
+| `location.comm` | Community/Department ID |
+| `oaire.venue.unpaywall` | Open Access status |
+
+### Facet Fields
+| Solr Field | Display Name |
+|------------|---------------|
+| `dateIssued.year` | Year |
+| `en_types_keyword` | Type |
+| `author_facet` | Author |
+| `location.coll` | Department |
+| `language_keyword` | Language |
+| `dc.publisher_facet` | Source |
+| `person.affiliation.country_facet` | Country |
+| `oaire.venue.unpaywall_facet` | Open Access |
+
+---
+
+## Filter Query Logic
+
+### URL Parameters → Solr Field Mapping
+
+| URL Parameter | Solr Field | Example |
+|---------------|-------------|---------|
+| `author[]` | `author_facet` | `?author[]=John+Doe` |
+| `year[]` | `dateIssued.year` | `?year[]=2024` |
+| `type[]` | `dc.type_facet` | `?type[]=Article` |
+| `department[]` | `location.comm` | `?department[]=Computer+Science` |
+| `language[]` | `language_keyword` | `?language[]=en` |
+| `country[]` | `person.affiliation.country_facet` | `?country[]=India` |
+| `source[]` | `dc.publisher_facet` | `?source[]=Nature` |
+| `openaccess[]` | `oaire.venue.unpaywall` | `?openaccess[]=gold` |
+| `year_from` | `dateIssued.year` range | `?year_from=2020&year_to=2024` |
+
+---
+
+## Search Logic
+
+### Query Flow:
+1. User enters search term in query box
+2. PHP builds edismax query with fields: `dc.title^2`, `dc.contributor.author`, `author_ac`, `dc.source`
+3. Solr returns results with highlighting
+4. PHP processes results: sort by year DESC, then by type priority
+
+### Type Priority (for sorting):
+1. Article (highest)
+2. Conference Paper
+3. Others (lowest)
+
+---
+
+## Adding New Filters
+
+1. Add URL parameter handling in `processPublicationFilters()`
+2. Add filter query building in `buildFilterQuery()`
+3. Add facet display in frontend
+4. Add to `facet.field` array in query if needed
+
+---
+
+## API Endpoints
+
+### publications_api.php
+- **Action: search** (default)
+  - `?q=searchterm&author[]=John&year[]=2024`
+  - Returns JSON with results, facets, pagination
+
+- **Action: facets**
+  - `?action=facets`
+  - Returns only facet data (for modal popup)
+
+### export.php
+- **Action: export** (download file)
+  - `?action=export&format=csv&q=searchterm&author[]=John&year[]=2024`
+  - Exports all matching records in specified format
+  - Formats: csv, json, txt
+  - Supports all filter parameters
+
+- **Action: export_count** (get count)
+  - `?action=export_count&q=searchterm&author[]=John`
+  - Returns JSON with count of records that would be exported
+
+---
+
+## Configuration
+
+| Variable | File | Description |
+|----------|------|-------------|
+| `$SOLR_URL` | `helpers.php` | Solr server URL |
+| `$COMMUNITY_ID` | `helpers.php` | Parent community ID |
+| `$DEFAULT_ROWS` | `publications_api.php` | Default results per page |
+| `$MAX_ROWS` | `publications_api.php` | Maximum results per page |
+
+---
+
+## Customization Guide
+
+### 1. Adding New Field to Solr Index (DSpace Server)
+To index a new field in DSpace/CRIS, modify files on DSpace server:
+
+**A. Edit Solr Schema (schema.xml)**
+Location: `[dspace]/solr/search/conf/schema.xml`
+
+For text search field:
+```xml
+<field name="dc.newfield" type="text" indexed="true" stored="true" multiValued="true"/>
+```
+
+For filter/facet field:
+```xml
+<field name="newfield_facet" type="string" indexed="true" stored="true" multiValued="true" docValues="true"/>
+<copyField source="dc.newfield" dest="newfield_facet"/>
+```
+
+**B. Add to Discovery Config**
+Location: `[dspace]/config/modules/discovery.cfg`
+```
+plugin.namedfilter = \
+    org.dspace.discovery.DiscoverFilter=dc.newfield
+```
+
+**C. Reindex**
+```bash
+[dspace]/bin/dspace index-discovery -b
+```
+
+### 2. Adding Field to Search (PHP Side)
+To make a new field searchable:
+- Edit `qf` parameter in `helpers.php`
+- Edit `qf` parameter in `publications_api.php`
+
+```php
+'qf' => 'dc.title^2 dc.contributor.author dc.newfield'
+```
+
+### 3. Adding Field as Filter
+To add filter for a new field:
+1. Add parameter handling in `processPublicationFilters()`
+2. Add filter query in `buildFilterQuery()`
+3. Add facet field in query
+4. Add UI in frontend
+
+### 4. Changing Sort Order
+- Type priority is defined in `getTypePriority()` function
+- Modify return values to change sort order
+
+### 5. Changing Results Per Page
+- Edit `$DEFAULT_ROWS` in helpers.php
+- Maximum allowed: `$MAX_ROWS`
+
+---
+
+## Common Issues
+
+1. **No results**: Check Solr is running, check collection ID
+2. **Missing facets**: Check facet.field is in query
+3. **Author not found**: Check author_facet field format
+4. **Year filter not working**: Check dateIssued.year field exists
+
+---
+
+## External Links
+
+- Solr Admin: Configure your Solr server URL in helpers.php
