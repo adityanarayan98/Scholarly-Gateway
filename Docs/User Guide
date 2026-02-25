@@ -1,0 +1,196 @@
+# Scholarly Gateway - User Guide
+
+## Welcome to Publications Portal
+
+This portal provides access to research publications from various institutions. Search and browse scholarly publications, research papers, and academic works.
+
+---
+
+## How to Search
+
+### Basic Search
+1. Enter your search term in the search box at the top
+2. Press Enter or click Search
+3. Browse results sorted by year (newest first)
+
+### Search Fields
+You can search by:
+- **Title** - Publication title
+- **Author** - Author name
+- **Source** - Journal or conference name
+
+Example: `machine learning` will find all publications containing these words
+
+---
+
+## Using Filters
+
+### Filter by Year
+- **Individual Years**: Click checkboxes to select specific years
+- **Year Range**: Use the slider to select a range (e.g., 2020-2024)
+
+### Filter by Type
+Select publication types:
+- Article
+- Conference Paper
+- Book Chapter
+- Thesis
+- Report
+
+### Filter by Department
+Select departments from the available options
+
+### Filter by Author
+Select specific authors to see their publications
+
+### Filter by Language
+Select publication language:
+- English
+- Hindi
+- Other languages
+
+### Filter by Country
+Select countries where research was published
+
+### Filter by Source
+Select journals or conferences
+
+### Filter by Open Access
+Select open access status:
+- Gold Open Access
+- Green Open Access
+- Closed Access
+
+---
+
+## Multiple Filters
+
+You can combine multiple filters:
+1. Select "Article" from Type
+2. Select "2024" from Year
+3. Select "Computer Science" from Department
+
+The portal will show only publications that match ALL selected filters.
+
+---
+
+## Understanding Results
+
+### Result Display
+Each result shows:
+- **Title** - Publication title (clickable)
+- **Authors** - Author names
+- **Year** - Publication year
+- **Type** - Publication type
+- **Journal/Conference** - Where published
+- **DOI** - Digital Object Identifier (clickable)
+
+### Links
+- Click title to view full publication in repository
+- Click DOI to view on publisher website
+
+---
+
+## Pagination
+
+### Results Per Page
+You can change number of results shown:
+- 25 (default)
+- 50
+- 100
+- 500
+
+### Navigation
+- Use Previous/Next buttons
+- Click page numbers to jump directly
+
+---
+
+## Facet Modal (See More)
+
+When there are many filter options:
+1. Click "See More" or "View All" button
+2. A popup modal appears with all options
+3. Search within the modal to find specific values
+4. Select multiple options
+5. Click Apply to filter
+
+---
+
+## Exporting Results
+
+You can export search results in different formats:
+1. Select a format from the Export dropdown (CSV, JSON, or Text)
+2. The export will include all records matching your current filters
+3. File will download automatically
+
+### Export Formats
+- **CSV** - Comma-separated values (Excel compatible)
+- **JSON** - JavaScript Object Notation (for developers)
+- **Text** - Tab-separated plain text
+
+---
+
+## URL Sharing
+
+You can share your search results:
+1. Apply your filters
+2. Copy the URL from browser address bar
+3. Send to colleague
+4. They will see same results with same filters
+
+---
+
+## Tips
+
+### Finding Specific Author
+1. Type author name in search box, OR
+2. Use Author filter and type name in modal
+
+### Finding Recent Publications
+1. Set Year filter to desired range
+2. Results automatically sorted by newest first
+
+### Finding Open Access Articles
+1. Use Open Access filter
+2. Select "Gold" or "Green"
+
+---
+
+## Troubleshooting
+
+### No Results Found
+- Try broader search terms
+- Check spelling
+- Remove some filters
+
+### Too Many Results
+- Add more specific filters
+- Use search with keywords
+
+### Page Not Loading
+- Check internet connection
+- Try refreshing the page
+- Clear browser cache
+
+---
+
+## Quick Reference
+
+| Feature | How to Use |
+|---------|------------|
+| Search | Type in search box |
+| Filter by Year | Checkboxes or slider |
+| Filter by Type | Select from list |
+| Filter by Department | Select departments |
+| Change Results Per Page | Dropdown selector |
+| Export Results | Select format from dropdown |
+| Share Results | Copy URL |
+| View Full Publication | Click title |
+| View Publisher Site | Click DOI |
+
+---
+
+## Version
+Current Version: 1.1
+Last Updated: February 2026
